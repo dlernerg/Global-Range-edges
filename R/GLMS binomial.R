@@ -13,7 +13,9 @@ library(lmerTest)
 
 #############################GLM for the different continents
 
-#identify the failiure by removing the number of species (i.e. range edges) in that grid cell - both the coastile and inland
+#identify the successes and failiures of forming REs 
+#i.e. success: range edges at a specific world grid cells; failiure: species not forming RE at the same grid cell 
+#this is done by removing the number of species (i.e. range edges) in that grid cell - (the coastile + inland)
 
 inlandquad <- as.numeric(global.inland$cell)
 
