@@ -56,38 +56,3 @@ bon <- format.pval(p.adjustSP(pnorm(2*(abs(local_G$gstat)), lower.tail=FALSE),
 
 local_G$corrected.p <- bon
 
-library(ggnewscale)
-i= 1
-coord <- coords[i]
-local_G.sf <- (local_G)
-local_G.sf$ID <-  rep(seq(nrow(local_G)/4),times =  4)
-local_G.sf = local_G.sf[which(local_G.sf$corrected.p<0.05),]
-
-load("C:/Users/davidle.WISMAIN//Box/lab folder/hotspots/paper/raw datat/4. quadrant freq/counts.coord.inland.norm.RData")
-global.inland2 <- global.inland[complete.cases(counts.coord.inland2),]
-st_geometry(local_G.sf) <- st_geometry(global.inland2$geometry[local_G.sf$ID])
-
-local_g <- local_G.sf[local_G.sf$coord == coords[i],]
-
-d <- ggplot() + 
-  geom_sf(data = wwf_eco3, aes(fill = .), alpha = 0.4, color = NA,show.legend=FALSE) +
-  new_scale_fill() +  
-  
-  geom_sf(data = local_g[local_g$gstat>2,], mapping = aes(geometry = geometry, fill = gstat), size = 1.5,  shape = 21, color = "black") + 
-  #geom_sf(b_E[b_E$Ii>quantile(local$Ii,0.95),], mapping = aes(geometry = geometry, size = Ii),color = "tomato1") 
-  #geom_sf(b_W[b_W$Ii>quantile(local$Ii,0.8),], mapping = aes(geometry = geometry, fill = Ii)) 
-  #scale_fill_brewer(palette = "RdBu", direction = -1)
-  scale_fill_gradient(low = "yellow", high = "red") 
-  #geom_polygon(data=countries, aes(x=long, y=lat, group=group), fill="ivory2", color="black")   +
-  #geom_sf(b_N[b_N$Ii>quantile(local$Ii,0.95),], mapping = aes(geometry = geometry, size = Ii),color = "forestgreen") 
-
-d <- d + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
-                 panel.background =  element_rect(fill = "lightblue"), axis.line = element_blank(),axis.title=element_blank(),
-                 axis.text=element_blank(),
-                 axis.ticks=element_blank()) 
-d
-ggsave(d, file="Gi_all.jpg",dpi=300,width = 10, height =9)
-
-
-
-#
