@@ -4,20 +4,6 @@ library(dbscan)
 library(parallel)
 library(sf)
 
-#find what epsilon to use
-i=8
-spec_to_pull = as.character(count_species[i,1])
-GBIFtree_dat = data.frame(GBIFtree_f5) %>% subset(species == spec_to_pull)
-GBIFtree_dat = GBIFtree_dat[,2:3]
-
-kNNdistplot(centr_matrix, k=3)
-abline(h=4, col = "black", lty=2)
-
-#a = kNN(GBIFtree_dat, k=5)
-#plot(a$dist)
-
-#carry out dbscan
-#i=12
 
 numCores <- detectCores()
 cl <- makeCluster(numCores-1)
@@ -110,96 +96,5 @@ polygons = polygons[-a,]
 save(polygons, file = "polygons.RData")
 
 
-######plot polygon
-i=20
-rand = sample(1:nrow(count_species_f5), 20, replace = F)
-rand = round(rand)
-
-
-for (i in 1:length(rand))
-{
-  
-  j = rand[i]  
-  
-#polygon_dat = polygons[(polygons$V2==i),1]
-#a = which(GBIFpolygon_clipped2 == flag_by_specie.dpl[30,1])
-  polygon_dat = GBIFpolygon_clipped$tree2u[j]
-  polygon_dat = st_sf(st_sfc(polygon_dat))
-  
-#b = which(count_species_f5 == flag_by_specie.dpl[91,1])
-  
- # GBIFtree_dat = GBIFpull(GBIFtree_f5, count_species_f5, b)
-#  clus = (DBSCAN_clust[[b]]$cluster)
-#  maxn = max(clus)
- # noutlier = GBIFtree_dat[which(clus!=0),]
-  #clus_clean = clus[clus!=0]
-#  all = cbind(noutlier,clus_clean)
-  
-  
-nlrg = 15
-  lims = st_bbox(polygon_dat)
-  sp.map = ggplot() +
-    geom_polygon(data=countries, aes(x=long, y=lat, group=group), fill=NA, color="black") +
-    geom_sf(data = polygon_dat,fill = "blue") +
-    
-    coord_sf(xlim = c(lims[1]-nlrg,lims[3]+nlrg), ylim = c(lims[2]-nlrg,lims[4]+nlrg)) +
-    #scale_fill_gradient(low="yellow", high="blue") +
-   ggtitle(paste(GBIFpolygon_clipped2[j,1]))
-  
-  plot(sp.map)
 }
-
-########plot DBSCAN and RO function
-rand = sample(1:nrow(count_species_f5), 20, replace = F)
-rand = round(rand)
-
-  
-  for (i in 1:length(rand))
-{
-    
-  j = rand[i]
-GBIFtree_dat = GBIFpull(GBIFtree_f5, count_species_f5, a)
-clus = DBSCAN_clust[[a]]$cluster
-INa = remove_outliers(GBIFtree_dat,clus)
-all = cbind(GBIFtree_dat,clus)
-all$clus = as.factor(all$clus)
-
-if (is.na(INa))
-{
-  sp.map = ggplot() +
-    geom_polygon(data=countries, aes(x=long, y=lat, group=group), fill=NA, color="black") +
-    #geom_sf(data = polygon_dat) +
-    geom_point(data = all, aes(y=decimalLatitude,x=decimalLongitude, color = clus)) +
-    # geom_point(data = IN, aes(y=decimalLatitude,x=decimalLongitude), color = "black") +
-    
-    #geom_point(data = GBIFtree_dat, aes(y=decimalLatitude,x=decimalLongitude), color = "red") +
-    #geom_point(data = gbif_filtered, aes(y=decimalLatitude,x=decimalLongitude), color = "red") +
-    
-    #geom_raster(data = kde, aes(x = x, y=y, alpha = layer)) +
-    #  coord_sf(xlim = c(lims[1]-nlrg,lims[3]+nlrg), ylim = c(lims[2]-nlrg,lims[4]+nlrg)) +
-    #scale_fill_gradient(low="yellow", high="blue") +
-    ggtitle(paste(count_species_f5[a,1]))
-  
-}else{
-  
-  sp.map = ggplot() +
-    geom_polygon(data=countries, aes(x=long, y=lat, group=group), fill=NA, color="black") +
-    #geom_sf(data = polygon_dat) +
-    geom_point(data = all, aes(y=decimalLatitude,x=decimalLongitude, color = clus)) +
-     geom_point(data = INa, aes(y=decimalLatitude,x=decimalLongitude), color = "black") +
-    
-    #geom_point(data = gbif_filtered, aes(y=decimalLatitude,x=decimalLongitude), color = "red") +
-    
-    #geom_raster(data = kde, aes(x = x, y=y, alpha = layer)) +
-    #  coord_sf(xlim = c(lims[1]-nlrg,lims[3]+nlrg), ylim = c(lims[2]-nlrg,lims[4]+nlrg)) +
-    #scale_fill_gradient(low="yellow", high="blue") +
-    ggtitle(paste(count_species_f5[j,1]))
-  
-
-}
-plot(sp.map)
-
-
-
-  }
 
