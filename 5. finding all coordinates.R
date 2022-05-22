@@ -305,3 +305,72 @@ for (i in 1:nrow(GBIFpolygon_groups))
   
   margin_allW = rbind(margin_ref_1,margin_ref_2,margin_ref_3)
  
+###########identify INLAND coordinates
+
+library(dplyr)
+library(rnaturalearth)
+library(sf)
+
+margin_allE$coord = "E"
+margin_allN$coord = "N" 
+margin_allS$coord = "S" 
+margin_allW$coord = "W"
+margin_all = rbind(margin_allE,margin_allN,margin_allS,margin_allW)
+margin_all$species = paste(margin_all$species, margin_all$coord)
+margin_all$species2 <- paste(margin_all$species,margin_all$ID)
+
+
+options("download.file.method" = "libcurl")
+oceans <- ne_download(scale = 110, type = 'ocean',category = 'physical', returnclass =  "sf")
+
+coastline <- ne_coastline(scale = 110, returnclass =  "sf") %>% st_buffer(.,3)
+margin_all_sf = st_as_sf(margin_all,coords = c("V1","V2"), crs = "WGS84")
+
+margin_all = margin_all %>% mutate(coasts = apply(st_intersects(margin_all_sf,coastline), 1, any))
+
+margin_all_inland = margin_all[margin_all$coasts==FALSE,]
+margin_all_coast = margin_all[margin_all$coasts==TRUE,]
+margin_all_coast_sf = st_as_sf(margin_all_coast,coords = c("V1","V2"), crs = "WGS84")
+
+fract_out = data.frame()
+
+for (i in 1:nrow(margin_all_coast)){
+ 
+  n = margin_all_coast_sf[i,]
+  n_b = st_buffer(n,3)
+  lims = st_bbox(n_b)
+  xy = st_coordinates(n)
+  
+  if (n$coord == "N"){
+    cardinal = rbind(c(lims[1],xy[2]),c(lims[1],lims[4]),c(lims[3],lims[4]),c(lims[3],xy[2]),c(lims[1],xy[2]))
+    cardinal = st_sfc(st_polygon(list(cardinal)), crs = "WGS84")
+  }else if (n$coord == "S"){
+    cardinal = rbind(c(lims[1],xy[2]),c(lims[1],lims[2]),c(lims[3],lims[2]),c(lims[3],xy[2]),c(lims[1],xy[2]))
+    cardinal = st_sfc(st_polygon(list(cardinal)), crs = "WGS84")
+  } else if (n$coord == "E"){
+    cardinal = rbind(c(xy[1],lims[4]),c(lims[3],lims[4]),c(lims[3],lims[2]),c(xy[1],lims[2]),c(xy[1],lims[4]))
+    cardinal = st_sfc(st_polygon(list(cardinal)), crs = "WGS84")
+  }else if (n$coord == "W"){
+    cardinal = rbind(c(xy[1],lims[2]),c(lims[1],lims[2]),c(lims[1],lims[4]),c(xy[1],lims[4]),c(xy[1],lims[2]))
+    cardinal = st_sfc(st_polygon(list(cardinal)), crs = "WGS84")
+  }
+    
+  cardinal = st_sf(cardinal)
+  
+
+  
+  #get the fraction of out vs in  
+  n_int = st_intersection(n_b,cardinal)
+  coast = st_intersection(n_int,oceans)
+ 
+    if (nrow(coast) == 0) {fract_out[i,1] = 0} else{fract_out[i,1] = st_area(coast)/st_area(n_int)}
+}
+
+  
+  
+  margin_all_coast$fraction = fract_out
+  
+  margin_coast = margin_all_coast[margin_all_coast$fraction>=0.5,]
+  margin_inland = rbind(margin_all_coast[margin_all_coast$fraction<0.5,1:7],margin_all_inland)
+
+
