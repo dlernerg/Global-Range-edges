@@ -150,7 +150,42 @@ calc.int.fun <- function(coord.intersect.df,RE.df){
   df <- data.frame(perc.hex = a5.length, perc.RE = a5.num)
   return(df)
 }
-#7.bootstrap the biome edges
+
+
+
+#7. Bootstrap the intersection of biome edges with range edges by randomizing the z values throughout the whole world in order to calculate the contribution of 
+#biome edges to a random distribution of range edges (or range edge hotspots)
+
+fct.btstrp.biome.edge <- function(counts.coord.inland.g,internal){
+  
+  rand.counts <- as.data.frame(counts.coord.inland.g$countss[sample(1:nrow(counts.coord.inland.g), nrow(counts.coord.inland.g), replace=F)])
+  rand.cell <- as.data.frame(global.inland$geometry[sample(1:nrow(global.inland), nrow(counts.coord.inland.g), replace=F)])
+  rand.all <- cbind(rand.counts,rand.cell) %>% st_as_sf() 
+  st_crs(rand.all) <- st_crs(global.inland)
+  names(rand.all) <- c("countss","geometry")
+  
+  intersect <- st_intersects(rand.all,internal)
+  intersect.df <- as.data.frame(intersect)
+  
+  intersect.df$countss <- rand.all$countss[intersect.df$row.id]
+  names(intersect.df) <- c('global cell',"biome combination","number RE")
+  
+  a3 <- unique(intersect.df$`global cell`)
+  a4.num <- sum(rand.all$countss[a3])
+  #a4.num <- sum(local_G.sf$gstat[a3], na.rm = T)
+  a4.length <- length(a3)
+  
+  length.r <- as.data.frame(round((a4.length/nrow(rand.all))*100,2)) 
+  num.r <- round((a4.num/sum(rand.all$countss))*100,2)
+  df <- data.frame(length.r,num.r)
+  colnames(df) <- c("length","number")
+  return(df)
+}
+
+
+#8.bootstrap the number of range edges at each biome (similar to the above but this time it will allow to observe the contribution of each edge to a random sample of 
+#range edges (or RE hotspots)
+
 fct.btstrp.biome.cont.a <- function(counts.coord.inland.g,internal){
   
   rand.counts <- as.data.frame(counts.coord.inland.g$countss[sample(1:nrow(counts.coord.inland.g), nrow(counts.coord.inland.g), replace=F)])
@@ -169,6 +204,7 @@ fct.btstrp.biome.cont.a <- function(counts.coord.inland.g,internal){
   df2 <- melt(mat.sum)
   return(df2)
 }
+
 fct.btstrp.biome.cont.b <- function(intrsct.df,df.btsrp){
   pval.sum <- matrix(ncol = 14, nrow = 14)
   mat.sum <- matrix(ncol = 14, nrow = 14)
@@ -196,7 +232,8 @@ fct.btstrp.biome.cont.b <- function(intrsct.df,df.btsrp){
   
   return(combination.matricies)  
 } 
-#8 calculate the contribution of each biome
+
+#9 calculate the contribution of each biome
 total.cont.fun <- function(comb.mat,alpha){
   comb.df <- melt(comb.mat) 
   comb.df <- comb.df %>% group_by(value) %>% arrange(desc(value))
