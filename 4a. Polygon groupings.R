@@ -97,39 +97,3 @@ for (i in 1:max(polygons$V2)){
   }
 }
 
-### some of the polygons come out as invalid (for some unknown reason... when mapped they seem fine so simply make valid)
-for (i in 1:nrow(GBIFpolygon_groups_pre)){ a[i,1] = st_is_valid(GBIFpolygon_groups_pre[i,])}
-b = which(a == FALSE)
-GBIFpolygon_groups_pre[b,] = st_make_valid(GBIFpolygon_groups_pre[b,])
-
-nlrg = 5
-    lims = st_bbox(polygon_groups)
-    sp.map = ggplot() +
-      geom_polygon(data=countries, aes(x=long, y=lat, group=group), fill=NA, color="black") +
-      geom_sf(data = polygon_groups, aes(fill = group))  +
-      coord_sf(xlim = c(lims[1]-nlrg,lims[3]+nlrg), ylim = c(lims[2]-nlrg,lims[4]+nlrg)) +
-    #scale_fill_gradient(low="yellow", high="blue") +
-      ggtitle(paste(polygon_dat$specie))    
-    plot(sp.map)
-    ggsave(sp.map, file=paste0("grouped",i,".png"), width = 44.45, height = 27.78, units = "cm", dpi=300)
-    
-
-
-
-for (i in 1:8){
-  f = e[i]
-  polygon_dat = polygons[f,]
-  
-  nlrg = 30
-  lims = st_bbox(polygon_dat)
-  sp.map = ggplot() +
-    geom_polygon(data=countries, aes(x=long, y=lat, group=group), fill=NA, color="black") +
-    geom_sf(data = polygon_dat, aes(fill = "red"))  +
-    ggtitle(paste0(polygon_dat$species)) +
-    coord_sf(xlim = c(lims[1]-nlrg,lims[3]+nlrg), ylim = c(lims[2]-nlrg,lims[4]+nlrg)) 
-  
-  plot(sp.map) 
-}
-#ggsave(sp.map, file=paste0("clusteringpolygons2_",i,".png"), width = 44.45, height = 27.78, units = "cm", dpi=300)
-
-
