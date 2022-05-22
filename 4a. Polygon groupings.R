@@ -97,3 +97,25 @@ for (i in 1:max(polygons$V2)){
   }
 }
 
+
+#######crop the polygons to inland boundaries
+for (i in 1:nrow(GBIFpolygon_groups_pre))
+{
+  tree = data.frame()
+  tree = GBIFpolygon_groups_pre[i,]
+  
+    
+    tree = st_sf(tree) %>% st_set_crs(.,"WGS84")
+  
+    tree2 = data.frame()
+    
+    tree2 = st_intersection(st_make_valid(tree), world)
+    tree2 = st_sf(tree2)
+  
+    GBIFpolygon_groups = (rbind(GBIFpolygon_groups,tree2))
+    
+
+    
+}
+  
+
