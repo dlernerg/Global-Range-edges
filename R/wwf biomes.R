@@ -1,3 +1,5 @@
+#Description: Download the data for biomes from the WWF webpage and simplify the maps to reduced complexity of edges using ms_simply function
+
 library(rmapshaper)
 library(ggplot2)
 library(sf)
