@@ -5,9 +5,7 @@ library(sf)
 
 
 #1:
-#at the end of the day we're creating in this loop the four quartile polygons for each of the distributions (only the largest area)
-#we will run for i=1 only the first time to allow for the st_sf[1] to be accounted for and then we do 2:max(combo$combo.Id). Only this way can we ensure the proper formation
-#we bind the four quartiles into one matrix after the loop
+#create the four quartile polygons for each of the distributions (only the largest area)
 
 rownames(GBIFpolygon_groups) <- c(1:nrow(GBIFpolygon_groups))
 
@@ -253,8 +251,7 @@ for (i in 1:nrow(GBIFpolygon_groups))
 }
 
 #4
-#distill the data like before but not in sf form (make sure marginS is not in sf form!!!!)
-
+#Identify all of the edge coordinates. The two RE from the same cardinal distance are accounted for if d>15 arc-deg, otherwise only one   
   
   margin_ref_1= data.frame()
   margin_ref_2 = data.frame()
@@ -265,9 +262,13 @@ for (i in 1:nrow(GBIFpolygon_groups))
     m1 = data.frame()
     m3 = data.frame() 
     
-    a = marginSW_1[i,1:2]  #1 = E/W #2 = N/S
+    #alter this number when analysing the different cardinal coordinates 
+    #1 = E/W #2 = N/S
+    a = marginSW_1[i,1:2] 
     b = marginNW_1[i,1:2]
-    c = 2#will define if we account the long or lat axis: 2 when dealing with E/W margins and 1 when dealing with N/S
+    
+    #will define if we account the long or lat axis: 2 when dealing with E/W margins and 1 when dealing with N/S
+    c = 2 
     d = marginW[i,1:2]
     
     
@@ -303,5 +304,4 @@ for (i in 1:nrow(GBIFpolygon_groups))
   margin_ref_3$species = V2
   
   margin_allW = rbind(margin_ref_1,margin_ref_2,margin_ref_3)
-  
-  save(margin_allW, file = "margin_allW.RData")
+ 
