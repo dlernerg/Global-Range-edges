@@ -1,5 +1,4 @@
-# Climatic heterogeneity and low precipitation dictate the global distribution of range-edge hotspots of major tree species
-
+# A biome-dependent distribution gradient of tree species range edges is strongly dictated by climate spatial heterogeneity 
 
 ## Authors
 _David Lerner, Marcos Fernandez Martinez, Stav Livne-Luzon, Jonathan Belmaker, Josep Peñuelas, Tamir Klein_
